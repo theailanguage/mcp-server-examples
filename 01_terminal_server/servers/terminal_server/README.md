@@ -2,12 +2,21 @@
 
 [⬅ Back to Root](../../README.md)
 
-Welcome to the **Terminal MCP Server**! This project is a basic example of how to build a Model Context Protocol (MCP) server that allows an AI (like Claude) to interact with your computer's terminal.
+Welcome to the **Terminal MCP Server**! This project is a basic example of how to build a Model Context Protocol (MCP) server that allows an AI (like Claude) to interact with your computer's terminal using the high-level `MCPServer` implementation.
 
 ## 🎓 Learning Objectives
 - Understand how to structure an MCP server in Python.
-- Learn how to use the `mcp` library to register tools.
+- Learn how to use the `MCPServer` class to register tools automatically.
 - Learn how to connect an MCP server to Claude Desktop using the `stdio` transport.
+
+---
+
+## 🛠 Tools
+
+### `execute_command`
+Executes a shell command within the configured workspace and returns its output or error message. This tool is the primary way for the AI to interact with the host system.
+- **Arguments**: 
+    - `command` (string): The full shell command to execute.
 
 ---
 
@@ -24,45 +33,64 @@ Ensure you have installed the requirements from the [root directory](../../requi
 pip install -r ../../requirements.txt
 ```
 
-### 3. Configuration (Connecting to Claude)
-To let Claude Desktop know about your new server, you need to add it to your `claude_desktop_config.json` file.
+### 3. Workspace Configuration
+The server restricts command execution to a specific directory. By default, it uses a `./workspace` folder or the current directory.
 
-#### File Locations:
-- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
-- **Linux:** `~/.config/Claude/claude_desktop_config.json` (if applicable)
-
-#### What to Add:
-Open the file in a text editor and add the following entry to the `mcpServers` object. **Make sure to replace the path with the actual absolute path to your file.**
+#### Option A: Using Environment Variables (Claude Desktop)
+Update your `claude_desktop_config.json` to include the `env` key:
 
 ```json
 {
   "mcpServers": {
     "terminal-server": {
       "command": "python",
-      "args": [
-        "/PATH/TO/YOUR/servers/terminal_server/main.py"
-      ]
+      "args": ["/PATH/TO/YOUR/servers/terminal_server/main.py"],
+      "env": {
+        "TERMINAL_WORKSPACE": "/path/to/your/desired/workspace"
+      }
     }
   }
 }
 ```
 
-*Note: On Windows, use `python.exe` and double backslashes in the path (e.g., `C:\\Users\\...`).*
+#### Option B: Using a `.env` file
+Create a file named `.env` in the `servers/terminal_server/` directory:
 
-### 4. Testing Locally
-Before connecting to Claude, you can test if the server works using the **MCP Inspector**. Run this command in your terminal:
+```env
+TERMINAL_WORKSPACE=./workspace
+```
+
+The server will automatically load this variable on startup using `python-dotenv`.
+
+### 4. Running the Server
+To run the server manually (usually for testing via stdio):
+
+```bash
+python servers/terminal_server/main.py
+```
+
+### 5. Configuration (Connecting to Claude)
+To let Claude Desktop know about your new server, you need to add it to your `claude_desktop_config.json` file.
+
+#### File Locations:
+- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux:** `~/.config/Claude/claude_desktop_config.json`
+
+#### What to Add:
+Open the file in a text editor and add the entry to the `mcpServers` object as shown in the Workspace Configuration section above.
+
+### 6. Testing Locally
+Before connecting to Claude, you can test if the server works using the **MCP Inspector**:
 
 ```bash
 npx @modelcontextprotocol/inspector python /PATH/TO/YOUR/servers/terminal_server/main.py
 ```
 
-This will open a web interface where you can manually trigger the `execute_command` tool.
-
 ---
 
 ## ⚠️ Safety Warning
-This server allows the AI to run **any** command on your computer. This is powerful but dangerous. 
+This server allows the AI to run **any** command on your computer within the workspace. This is powerful but dangerous. 
 - **Never** run this server on a public network.
 - **Always** monitor what commands the AI is suggesting before you let it run them.
 - In a real-world application, you should restrict the commands the server is allowed to run.
@@ -70,7 +98,7 @@ This server allows the AI to run **any** command on your computer. This is power
 ---
 
 ## 📂 Project Structure
-- `main.py`: The entry point that initializes the MCPServer and registers tools.
+- `main.py`: The entry point that initializes the `MCPServer` and registers tools.
 - `tools.py`: Contains the logic for executing terminal commands using Python's `subprocess` module.
 - `__init__.py`: Makes the directory a Python package.
 
@@ -80,5 +108,5 @@ This server allows the AI to run **any** command on your computer. This is power
 The server uses the **STDIO (Standard Input/Output)** transport. 
 1. Claude Desktop starts the Python script as a background process.
 2. Claude sends JSON-RPC messages to the script's `stdin`.
-3. The `mcp` library parses these messages and calls the `execute_command` function.
+3. The `MCPServer` instance handles these messages and calls the `execute_command` tool.
 4. The output of the command is sent back to Claude via `stdout`.
