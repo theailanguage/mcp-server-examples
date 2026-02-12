@@ -1,6 +1,9 @@
 import subprocess
 import os
-import platform
+import logging
+
+# Set up logger for this module
+logger = logging.getLogger(__name__)
 
 # Define the workspace directory. 
 # It first looks for an environment variable 'TERMINAL_WORKSPACE'.
@@ -9,7 +12,7 @@ WORKSPACE = os.environ.get("TERMINAL_WORKSPACE", os.getcwd())
 
 # Ensure the workspace directory exists.
 if not os.path.exists(WORKSPACE):
-    print(f"Warning: Workspace directory '{WORKSPACE}' does not exist. Defaulting to current directory.")
+    logger.warning(f"Workspace directory '{WORKSPACE}' does not exist. Defaulting to current directory.")
     WORKSPACE = os.getcwd()
 else:
     # Convert to absolute path for consistency
@@ -43,7 +46,7 @@ def execute_command(command: str) -> str:
         # - timeout=30: Prevent hanging.
         # - cwd=WORKSPACE: Run the command inside the defined workspace directory.
         
-        print(f"[*] Executing command: {command} (in {WORKSPACE})")
+        logger.info(f"Executing command: {command} (in {WORKSPACE})")
         
         result = subprocess.run(
             command,
@@ -59,9 +62,12 @@ def execute_command(command: str) -> str:
             return result.stdout if result.stdout.strip() else "Command executed successfully with no output."
         else:
             # If the command failed, return the error message from stderr.
+            logger.error(f"Command failed with exit code {result.returncode}: {result.stderr}")
             return f"Error (Exit Code {result.returncode}):\n{result.stderr}"
             
     except subprocess.TimeoutExpired:
+        logger.error(f"Command timed out: {command}")
         return f"Error: The command timed out after 30 seconds."
     except Exception as e:
+        logger.exception(f"An unexpected error occurred while executing command: {command}")
         return f"An unexpected error occurred: {str(e)}"
