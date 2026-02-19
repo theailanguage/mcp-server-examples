@@ -3,7 +3,7 @@ import json
 import logging
 import sys
 from typing import Dict, List, Optional
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
@@ -18,7 +18,7 @@ class MCPClientManager:
     def __init__(self, config_path: str):
         self.config_path = config_path
         self.sessions: Dict[str, ClientSession] = {}
-        self.exit_stack = asyncio.ExitStack()
+        self.exit_stack = AsyncExitStack()
         self._server_params: Dict[str, StdioServerParameters] = {}
 
     def load_config(self):
