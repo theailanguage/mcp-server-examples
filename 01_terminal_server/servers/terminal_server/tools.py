@@ -6,9 +6,8 @@ import platform
 # Set up logger for this module
 logger = logging.getLogger(__name__)
 
-# Default workspace is the 'workspace' directory within the current working directory.
-# This ensures it works across different operating systems.
-DEFAULT_WORKSPACE = os.path.join(os.getcwd(), "workspace")
+# Default workspace is specified in the home directory.
+DEFAULT_WORKSPACE = os.path.expanduser("~/mcp/workspace")
 
 # Define the workspace directory.
 # It checks for the 'TERMINAL_WORKSPACE' environment variable.

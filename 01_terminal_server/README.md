@@ -40,94 +40,81 @@ Executes a shell command within the configured workspace and returns its output 
 
 ---
 
-
 ## 🚀 Getting Started
 
-### 1. Prerequisites
-- **Python 3.10 or higher** installed on your machine.
-- **[uv](https://docs.astral.sh/uv/)** installed (highly recommended for environment management).
-- **Claude Desktop** installed (if you want to use the GUI).
+### 1. Install Dependencies
 
-### 2. Global Setup (using `uv`)
-To set up the project environment using `uv`, follow these steps from the root directory:
+Change to the directory with the code you have cloned using PowerShell (Windows) or Terminal (MacOS) and run the install command.
 
-```bash
-# Initialize the project if not already done
-uv init
+Note: This installs MCP version 2 (specified in requirements.txt), allowing Claude to run the server.
 
-# Create a virtual environment
-uv venv
+**WINDOWS**
 
-# Activate the virtual environment
-# On macOS/Linux:
-source .venv/bin/activate
-# On Windows:
-.venv\Scripts\activate
-
-# Install dependencies from requirements.txt
-uv pip install -r requirements.txt
+```powershell
+cd C:\<PROJECT_PATH>\mcp-v2-server-examples\01_terminal_server
+pip install -r requirements.txt
 ```
 
-*Note: You can also use `uv sync` if a `pyproject.toml` is present.*
+**MACOS**
 
-### 3. Workspace Configuration
-The server restricts command execution to a specific directory. By default, it uses a `./workspace` folder or the current directory.
+```bash
+cd /Users/<PROJECT_PATH>/mcp-v2-server-examples/01_terminal_server
+pip3 install -r requirements.txt
+```
+(Or use `pip` if `pip3` is not found)
 
-#### Option A: Using Environment Variables (Claude Desktop)
-Update your `claude_desktop_config.json` to include the `env` key:
+### ⚠️ 2. Configure Workspace (Very Important)
+
+The tool needs a specific folder to save files. Without this setup, the tool will fail. Choose ONE of the two methods below.
+
+#### Method A: Create Default Folder (Easiest)
+
+Simply create a folder named `workspace` inside an `mcp` folder in your user directory. The code will automatically look here if no environment variable is set.
+
+**MacOS/Linux:**
+`~/mcp/workspace`
+
+**Windows:**
+`C:\Users\<YOUR_USERNAME>\mcp\workspace`
+
+#### Method B: Set Custom Path (.env)
+
+If you want to use a specific existing folder, open the `.env` file in the project and add the variable below.
+
+**MacOS / Linux Example:**
+`TERMINAL_WORKSPACE=/Users/jdoe/projects/my_mcp_workspace`
+
+**Windows Example:**
+`TERMINAL_WORKSPACE=C:\\Users\\jdoe\\projects\\my_mcp_workspace`
+
+**Important:** On Windows, you must use double backslashes (`\\`) in the `.env` file.
+
+---
+
+### 💻 Steps for Windows Users
+
+
+1. Please go to the menu button on the top left in Claude Desktop.
+2. Then select **File** > click **Settings**.
+3. In the settings window, click **Developer** on the left.
+4. At the bottom/in middle of the resulting window there is an **Edit Config** button - click that.
+5. This will open the folder where this file is located. This folder should be `C:\Users\<YourUserName>\AppData\Roaming\Claude`.
+   *Claude should create the file automatically if not present when you follow these steps!*
+6. Now look for `claude_desktop_config.json` here. Just in case it is not present, create a new file.
+7. Copy the config as given below to the file. Note that windows has a different path naming convention, hence the difference!
+8. Once done, restart Claude Desktop by clicking menu on top left, then **File** and then **Exit**. Do not close from task bar as that does not properly quit Claude desktop. Then start it again and you should see the terminal tool in the chat box icon for controls near bottom left of the chat box.
+
+#### `claude_desktop_config.json` content for Windows
 
 ```json
 {
   "mcpServers": {
-    "terminal-server": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "/PATH/TO/YOUR/PROJECT/servers/terminal_server",
-        "run",
-        "python",
-        "main.py"
-      ],
-      "env": {
-        "TERMINAL_WORKSPACE": "/path/to/your/desired/workspace"
-      }
+    "terminal": {
+      "command": "python",
+      "args": ["C:\\<PROJECT_PATH>\\mcp-v2-server-examples\\01_terminal_server\\servers\\terminal_server\\main.py"]
     }
   }
 }
-```
-
-#### Option B: Using a `.env` file
-Create a file named `.env` in the `servers/terminal_server/` directory:
-
-```env
-TERMINAL_WORKSPACE=./workspace
-```
-
-The server will automatically load this variable on startup using `python-dotenv`.
-
-### 4. Running the Server Manually
-To run the server manually using `uv`:
-
-```bash
-uv run python servers/terminal_server/main.py
-```
-
-### 5. Configuration (Connecting to Claude)
-To let Claude Desktop know about your new server, you need to add it to your `claude_desktop_config.json` file.
-
-#### File Locations:
-- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
-- **Linux:** `~/.config/Claude/claude_desktop_config.json`
-
-#### What to Add:
-Open the file in a text editor and add the entry to the `mcpServers` object as shown in the **Workspace Configuration** section above.
-
-### 6. Testing Locally
-Before connecting to Claude, you can test if the server works using the **MCP Inspector**:
-
-```bash
-npx @modelcontextprotocol/inspector uv run python servers/terminal_server/main.py
 ```
 
 ---
