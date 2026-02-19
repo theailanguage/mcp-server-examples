@@ -1,14 +1,23 @@
 import subprocess
 import os
 import logging
+import platform
 
 # Set up logger for this module
 logger = logging.getLogger(__name__)
 
 # Define the workspace directory. 
-# It first looks for an environment variable 'TERMINAL_WORKSPACE'.
+# It checks for platform-specific environment variables 'TERMINAL_WORKSPACE_MAC' 
+# or 'TERMINAL_WORKSPACE_WINDOWS' based on the operating system.
 # If not found, it defaults to the current working directory where the server is running.
-WORKSPACE = os.environ.get("TERMINAL_WORKSPACE", os.getcwd())
+system_platform = platform.system()
+if system_platform == "Darwin": # macOS
+    WORKSPACE = os.environ.get("TERMINAL_WORKSPACE_MAC", os.getcwd())
+elif system_platform == "Windows":
+    WORKSPACE = os.environ.get("TERMINAL_WORKSPACE_WINDOWS", os.getcwd())
+else:
+    # Generic fallback
+    WORKSPACE = os.environ.get("TERMINAL_WORKSPACE", os.getcwd())
 
 # Ensure the workspace directory exists.
 if not os.path.exists(WORKSPACE):
