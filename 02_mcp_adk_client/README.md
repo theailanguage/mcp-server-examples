@@ -3,6 +3,8 @@
 ## Project Overview
 This project provides a seamless integration between the **Google Agent Development Kit (ADK)** and the **Model Context Protocol (MCP)**. It enables a Google ADK Agent (powered by Gemini) to dynamically discover, connect to, and utilize tools hosted on any configured MCP server using the native `McpToolset`.
 
+> **Note:** This project uses **MCP version 1** (and not version 2) because the **Google Agent Development Kit (ADK)** currently supports MCP version 1.
+
 ## Directory Structure
 - `servers/`: Contains custom MCP server implementations.
   - `echo_server/`: A simple echo server used for testing.
