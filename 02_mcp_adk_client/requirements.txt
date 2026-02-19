@@ -1,4 +1,4 @@
-mcp>=1.2.0
+mcp @ git+https://github.com/modelcontextprotocol/python-sdk.git@main
 google-adk>=0.1.0
 rich
 anyio
