@@ -6,22 +6,18 @@ import platform
 # Set up logger for this module
 logger = logging.getLogger(__name__)
 
-# Define the workspace directory. 
-# It checks for platform-specific environment variables 'TERMINAL_WORKSPACE_MAC' 
-# or 'TERMINAL_WORKSPACE_WINDOWS' based on the operating system.
-# If not found, it defaults to the current working directory where the server is running.
-system_platform = platform.system()
-if system_platform == "Darwin": # macOS
-    WORKSPACE = os.environ.get("TERMINAL_WORKSPACE_MAC", os.getcwd())
-elif system_platform == "Windows":
-    WORKSPACE = os.environ.get("TERMINAL_WORKSPACE_WINDOWS", os.getcwd())
-else:
-    # Generic fallback
-    WORKSPACE = os.environ.get("TERMINAL_WORKSPACE", os.getcwd())
+# Default workspace is the 'workspace' directory within the current working directory.
+# This ensures it works across different operating systems.
+DEFAULT_WORKSPACE = os.path.join(os.getcwd(), "workspace")
+
+# Define the workspace directory.
+# It checks for the 'TERMINAL_WORKSPACE' environment variable.
+# If not found, it defaults to the DEFAULT_WORKSPACE.
+WORKSPACE = os.environ.get("TERMINAL_WORKSPACE", DEFAULT_WORKSPACE)
 
 # Ensure the workspace directory exists.
 if not os.path.exists(WORKSPACE):
-    logger.warning(f"Workspace directory '{WORKSPACE}' does not exist. Defaulting to current directory.")
+    logger.warning(f"Workspace directory '{WORKSPACE}' does not exist. Defaulting to current directory: {os.getcwd()}")
     WORKSPACE = os.getcwd()
 else:
     # Convert to absolute path for consistency
@@ -46,7 +42,6 @@ def execute_command(command: str) -> str:
     # In a production environment, you should strictly validate or 
     # sanitize the 'command' string to prevent command injection attacks.
     # For this educational example, we execute the command as provided.
-    
     
     try:
         # We use subprocess.run to execute the command.
