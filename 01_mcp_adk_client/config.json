@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "echo-server": {
-      "command": "python",
-      "args": ["-m", "servers.echo_server.main"]
-    }
-  }
-}
